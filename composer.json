@@ -1,0 +1,28 @@
+{
+  "name": "rabbitcms/query",
+  "description": "Backend for Rabbit CMS Query",
+  "license": "MIT",
+  "require": {
+    "rabbitcms/modules": "^1.2.0",
+    "dkulyk/query": "^1.0"
+  },
+  "authors": [
+    {
+      "name": "Dmytro Zhurakovskyi",
+      "email": "dmytro.zhurakovsky@gmail.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "RabbitCMS\\Query\\": "src/"
+    },
+    "files": [
+      "src/Support/helpers.php"
+    ]
+  },
+  "extra": {
+    "module": {
+      "providers": "RabbitCMS\\Query\\ModuleProvider"
+    }
+  }
+}
