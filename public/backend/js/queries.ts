@@ -4,7 +4,14 @@ import "query-builder";
 class RabbitCMSQueryBuilder {
     protected filtersCache = {};
 
-    init(entity, portlet) {
+    /**
+     * @deprecated
+     */
+    static init(entity, portlet) {
+        return new RabbitCMSQueryBuilder(entity, portlet);
+    }
+
+    constructor(entity, portlet) {
         let table = portlet.find('.table');
         let jQQB = $(".search-container", portlet);
         let queryBuilder = $.fn.queryBuilder;
@@ -35,36 +42,13 @@ class RabbitCMSQueryBuilder {
             jQQB.queryBuilder('setRoot', false, {'entity': entity});
         });
 
-        portlet.on('submit', '#export-form', function () {
-            let form = $(this);
-            let result = jQQB.queryBuilder('getRules');
-            let params = {};
-
-            if (!$.isEmptyObject(result) && !$.isEmptyObject(result.rules)) {
-                params['qBuilder'] = JSON.stringify(result, null, 2);
-            }
-
-            $('.form-filter', table).each(function () {
-                let self = $(this);
-                params[self.attr('name')] = self.val();
-            });
-
-            $('.filter', form).remove();
-            $.each(params, function(name, value) {
-                form.append(
-                    $('<input/>').attr('type', 'hidden')
-                        .attr('name', name)
-                        .attr('value', value)
-                        .attr('class', 'filter')
-                );
-            });
-        });
-
         portlet.on('change', '[name="queries-list"]', function () {
             let rules = $('option:selected', this).data('rules');
 
             jQQB.queryBuilder('clear');
             jQQB.queryBuilder('setRules', rules ? rules : defaultRules);
+
+            //RCMSjQQB.getFilters(relation, jQQB);
         });
 
         queryBuilder.defaults({
@@ -140,6 +124,8 @@ class RabbitCMSQueryBuilder {
                 }
 
                 relationSelect[0].selectedIndex = 0;
+
+                console.log(RCMSjQQB.filtersCache);
             });
 
         }, { });
@@ -322,8 +308,9 @@ class RabbitCMSQueryBuilder {
             if (rule.filter.data && rule.filter.data.type === 'amount') {
                 input.maskMoney($.extend({
                     thousands: ' ',
-                    decimal: ',',
-                    affixesStay: false
+                    decimal: '.',
+                    affixesStay: false,
+                    allowZero: true
                 }, rule.filter.data.options));
             }
 
@@ -388,4 +375,4 @@ class RabbitCMSQueryBuilder {
     }
 }
 
-export = new RabbitCMSQueryBuilder();
+export = RabbitCMSQueryBuilder;

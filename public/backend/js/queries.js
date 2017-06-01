@@ -1,10 +1,8 @@
 define(["require", "exports", "jquery", "query-builder"], function (require, exports, $) {
     "use strict";
     var RabbitCMSQueryBuilder = (function () {
-        function RabbitCMSQueryBuilder() {
+        function RabbitCMSQueryBuilder(entity, portlet) {
             this.filtersCache = {};
-        }
-        RabbitCMSQueryBuilder.prototype.init = function (entity, portlet) {
             var table = portlet.find('.table');
             var jQQB = $(".search-container", portlet);
             var queryBuilder = $.fn.queryBuilder;
@@ -30,29 +28,11 @@ define(["require", "exports", "jquery", "query-builder"], function (require, exp
                 jQQB.queryBuilder("clear");
                 jQQB.queryBuilder('setRoot', false, { 'entity': entity });
             });
-            portlet.on('submit', '#export-form', function () {
-                var form = $(this);
-                var result = jQQB.queryBuilder('getRules');
-                var params = {};
-                if (!$.isEmptyObject(result) && !$.isEmptyObject(result.rules)) {
-                    params['qBuilder'] = JSON.stringify(result, null, 2);
-                }
-                $('.form-filter', table).each(function () {
-                    var self = $(this);
-                    params[self.attr('name')] = self.val();
-                });
-                $('.filter', form).remove();
-                $.each(params, function (name, value) {
-                    form.append($('<input/>').attr('type', 'hidden')
-                        .attr('name', name)
-                        .attr('value', value)
-                        .attr('class', 'filter'));
-                });
-            });
             portlet.on('change', '[name="queries-list"]', function () {
                 var rules = $('option:selected', this).data('rules');
                 jQQB.queryBuilder('clear');
                 jQQB.queryBuilder('setRules', rules ? rules : defaultRules);
+                //RCMSjQQB.getFilters(relation, jQQB);
             });
             queryBuilder.defaults({
                 templates: {
@@ -113,6 +93,7 @@ define(["require", "exports", "jquery", "query-builder"], function (require, exp
                         group.$el.find('.group-conditions').append('<button class="btn btn-xs btn-default"><i class="glyphicon"></i>' + option.text() + '</button>');
                     }
                     relationSelect[0].selectedIndex = 0;
+                    console.log(RCMSjQQB.filtersCache);
                 });
             }, {});
             jQQB.queryBuilder({
@@ -171,6 +152,12 @@ define(["require", "exports", "jquery", "query-builder"], function (require, exp
                     });
                 });
             });
+        }
+        /**
+         * @deprecated
+         */
+        RabbitCMSQueryBuilder.init = function (entity, portlet) {
+            return new RabbitCMSQueryBuilder(entity, portlet);
         };
         RabbitCMSQueryBuilder.prototype.getFilters = function (relation, jQQB, data) {
             var _this = this;
@@ -267,8 +254,9 @@ define(["require", "exports", "jquery", "query-builder"], function (require, exp
                 if (rule.filter.data && rule.filter.data.type === 'amount') {
                     input.maskMoney($.extend({
                         thousands: ' ',
-                        decimal: ',',
-                        affixesStay: false
+                        decimal: '.',
+                        affixesStay: false,
+                        allowZero: true
                     }, rule.filter.data.options));
                 }
                 switch (filter_type) {
@@ -331,6 +319,6 @@ define(["require", "exports", "jquery", "query-builder"], function (require, exp
         };
         return RabbitCMSQueryBuilder;
     }());
-    return new RabbitCMSQueryBuilder();
+    return RabbitCMSQueryBuilder;
 });
 //# sourceMappingURL=queries.js.map
