@@ -28,7 +28,8 @@ define(["require", "exports", "jquery", "query-builder"], function (require, exp
                 var entity = getEntity(group);
                 getFilters(entity);
                 if (group.data && group.data.relation) {
-                    group.$el.find('.group-conditions').append("<button class=\"btn btn-xs btn-default\"><i class=\"glyphicon\"></i>" + (group.data.label || group.data.relation) + "</button>");
+                    var filter = _this.getFilterById(getEntity(group.parent) + "." + group.data.relation);
+                    group.$el.find('.group-conditions').append("<button class=\"btn btn-xs btn-default\"><i class=\"glyphicon\"></i>" + (filter.label || group.data.relation) + "</button>");
                 }
                 //$('[data-add="relation"] option[value!=""]', group.$el).remove();
                 e.builder.filters
@@ -46,8 +47,7 @@ define(["require", "exports", "jquery", "query-builder"], function (require, exp
                         var root = _this.getModel(relationSelect.closest('.rules-group-container'));
                         var group_1 = _this.addGroup(root, true, {
                             'relation': option.data('field'),
-                            'entity': value,
-                            'label': option.text()
+                            'entity': value
                         });
                     }
                     relationSelect[0].selectedIndex = 0;

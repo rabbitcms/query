@@ -69,8 +69,9 @@ queryBuilder.defaults({
             let entity = getEntity(group);
             getFilters(entity);
             if (group.data && group.data.relation) {
+                let filter = this.getFilterById(`${getEntity(group.parent)}.${group.data.relation}`);
                 group.$el.find('.group-conditions').append(
-                    `<button class="btn btn-xs btn-default"><i class="glyphicon"></i>${group.data.label || group.data.relation}</button>`
+                    `<button class="btn btn-xs btn-default"><i class="glyphicon"></i>${filter.label || group.data.relation}</button>`
                 );
             }
 
@@ -95,8 +96,7 @@ queryBuilder.defaults({
                     let root = this.getModel(relationSelect.closest('.rules-group-container'));
                     let group = this.addGroup(root, true, {
                         'relation': option.data('field'),
-                        'entity': value,
-                        'label': option.text()
+                        'entity': value
                     });
 
                 }
