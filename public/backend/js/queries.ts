@@ -1,9 +1,165 @@
 import * as $ from "jquery";
 import "query-builder";
 
-class RabbitCMSQueryBuilder {
-    protected filtersCache = {};
+var queryBuilder = $.fn.queryBuilder;
 
+queryBuilder.defaults({
+    templates: {
+        group: `
+<dl id="{{= it.group_id }}" class="rules-group-container">
+  <dt class="rules-group-header">
+    <div class="btn-group pull-right group-actions">
+      <select data-add="relation">
+        <option value="">Зв'язок</option>
+      </select>
+      <button type="button" class="btn btn-xs btn-success" data-add="rule">
+        <i class="{{= it.icons.add_rule }}"></i> {{= it.translate("add_rule") }}
+      </button>
+      {{? it.settings.allow_groups===-1 || it.settings.allow_groups>=it.level }}
+        <button type="button" class="btn btn-xs btn-success" data-add="group"> \
+          <i class="{{= it.icons.add_group }}"></i> {{= it.translate("add_group") }}
+        </button>
+      {{?}}
+      {{? it.level>1 }}
+        <button type="button" class="btn btn-xs btn-danger" data-delete="group">
+          <i class="{{= it.icons.remove_group }}"></i> {{= it.translate("delete_group") }}
+        </button>
+      {{?}}
+    </div>
+    <div class="btn-group group-conditions">
+      {{~ it.conditions: condition }}
+        <label class="btn btn-xs btn-primary">
+          <input type="radio" name="{{= it.group_id }}_cond" value="{{= condition }}"> {{= it.translate("conditions", condition) }}
+        </label>
+      {{~}}
+    </div>
+    {{? it.settings.display_errors }}
+      <div class="error-container"><i class="{{= it.icons.error }}"></i></div>
+    {{?}}
+  </dt>
+  <dd class=rules-group-body>
+    <ul class=rules-list></ul>
+  </dd>
+</dl>`
+    }
+});
+
+(() => {
+    let globalCache = {};
+    queryBuilder.define('bt-relation', function () {
+        let filtersCache = {};
+
+        this.on('getRuleFilters.filter', (e, rule) => {
+            let entity = getEntity(rule.parent);
+            e.value = e.value.filter(filter => filter.id.startsWith(`${entity}.`) && (!filter.data || filter.data.type !== 'relation'));
+        });
+
+        this.on('ruleToJson.filter', function (e, rule) {
+            if (rule.filter.data && rule.filter.data.type === 'autocomplete') {
+                let values = {};
+                rule.$el.find('.rule-value-container select option:selected').each(function () {
+                    values[$(this).val()] = $(this).text();
+                });
+
+                e.value.data['values'] = values;
+            }
+        });
+
+        this.on('afterAddGroup.QueryBuilder', (e, group) => {
+            let entity = getEntity(group);
+            getFilters(entity);
+            if (group.data && group.data.relation) {
+                group.$el.find('.group-conditions').append(
+                    `<button class="btn btn-xs btn-default"><i class="glyphicon"></i>${group.data.label || group.data.relation}</button>`
+                );
+            }
+
+            //$('[data-add="relation"] option[value!=""]', group.$el).remove();
+            e.builder.filters
+                .filter(filter => filter.id.startsWith(entity + '.') && filter.data && filter.data.type === 'relation')
+                .forEach((filter) => {
+                    $('[data-add="relation"]', group.$el).append(
+                        $('<option/>').text(filter.label).attr('value', filter.data.entity)
+                            .attr('data-field', filter.field)
+                    );
+                });
+
+            group.$el.on('change', '[data-add="relation"]', (e) => {
+                let relationSelect = $(e.currentTarget);
+                let value = relationSelect.val();
+                let option = $('option:selected', relationSelect);
+
+                if (value !== '') {
+                    getFilters(value);
+
+                    let root = this.getModel(relationSelect.closest('.rules-group-container'));
+                    let group = this.addGroup(root, true, {
+                        'relation': option.data('field'),
+                        'entity': value,
+                        'label': option.text()
+                    });
+
+                }
+
+                relationSelect[0].selectedIndex = 0;
+            });
+        });
+
+        let getEntity = (group): string => {
+            let entity;
+            while (group && !entity) {
+                entity = group.data ? group.data.entity : null;
+                group = group.parent;
+            }
+
+            return entity;
+        };
+
+        let getFilters = (entity) => {
+            if (filtersCache.hasOwnProperty(entity)) {
+                return filtersCache[entity];
+            }
+            let update = (filters) => {
+                filtersCache[entity] = filters.map(function (filter) {
+                    if (filter.data && filter.data.type === 'autocomplete') {
+                        filter.valueSetter = function (rule, value) {
+                            let select = rule.$el.find('.rule-value-container select');
+                            select.empty();
+                            value.forEach((item) => {
+                                if (item) {
+                                    select.append(
+                                        $('<option/>').val(item)
+                                            .text(rule.data.values[item] || item)
+                                            .prop('selected', true)
+                                    );
+                                }
+                            });
+                        }
+                    }
+
+                    return filter;
+                });
+
+                return filtersCache[entity];
+            };
+
+            if (globalCache.hasOwnProperty(entity)) {
+                this.addFilter(update(globalCache[entity]));
+            } else {
+                RabbitCMS._ajax({
+                    method: 'GET',
+                    url: RabbitCMS.getPrefix() + '/query/queries/filters/' + entity,
+                    async: false
+                }, (data) => {
+                    globalCache[entity] = data;
+                    this.addFilter(update(data));
+                });
+            }
+        };
+    }, {});
+})();
+
+class RabbitCMSQueryBuilder {
     /**
      * @deprecated
      */
@@ -14,125 +170,35 @@ class RabbitCMSQueryBuilder {
     constructor(entity, portlet) {
         let table = portlet.find('.table');
         let jQQB = $(".search-container", portlet);
-        let queryBuilder = $.fn.queryBuilder;
-        let RCMSjQQB = this;
-        let defaultRules =  {
+        const defaultRules = {
             condition: 'AND',
             rules: [],
             data: {
                 entity: entity
-            }
-        };
+            }};
 
         table.on('beforeSubmitFilter', function (e) {
             let result = jQQB.queryBuilder('getRules');
 
-            let json = {};
             if (!$.isEmptyObject(result) && !$.isEmptyObject(result.rules)) {
-                json = JSON.stringify(result, null, 2);
-            }
-
-            if (!$.isEmptyObject(json)) {
-                e.data = {filters: json};
+                e.data = {filters: JSON.stringify(result, null, 2)};
             }
         });
 
         table.on('beforeResetFilter', function (e) {
             jQQB.queryBuilder("clear");
-            jQQB.queryBuilder('setRoot', false, {'entity': entity});
+            jQQB.queryBuilder('setRoot', false, defaultRules);
         });
 
         portlet.on('change', '[name="queries-list"]', function () {
-            let rules = $('option:selected', this).data('rules');
-
             jQQB.queryBuilder('clear');
-            jQQB.queryBuilder('setRules', rules ? rules : defaultRules);
-
-            //RCMSjQQB.getFilters(relation, jQQB);
+            jQQB.queryBuilder('setRules', $('option:selected', this).data('rules') || defaultRules);
         });
 
-        queryBuilder.defaults({
-            templates: {
-                group: this.getGroupTemplate()
-            }
-        });
-
-        queryBuilder.define('bt-relation', function () {
-            let self = this;
-
-            self.on('getRuleFilters.filter', function(e, rule) {
-                $('[data-add="relation"] option[value!=""]', rule.parent.$el).remove();
-
-                e.value = e.value.filter(function (filter) {
-                    let parent = rule.parent;
-                    let relation;
-                    while (parent && !relation) {
-                        relation = parent.data ? parent.data.entity : null;
-                        parent = parent.parent;
-                    }
-
-                    if (filter.id.startsWith((relation) + '.')) {
-                        if (filter.data && filter.data.type === 'relation') {
-                            $('[data-add="relation"]', rule.parent.$el).append(
-                                $('<option/>').text(filter.label).attr('value', filter.data.entity)
-                                    .attr('data-field', filter.field)
-                            );
-                            return false;
-                        } else {
-                            return true;
-                        }
-                    }
-
-                    return false;
-                });
-            });
-
-            self.on('ruleToJson.filter', function (e, rule) {
-                if (rule.filter.data && rule.filter.data.type === 'autocomplete') {
-                    let values = {};
-                    rule.$el.find('.rule-value-container select option:selected').each(function () {
-                        values[$(this).val()] = $(this).text();
-                    });
-
-                    e.value.data['values'] = values;
-                }
-            });
-
-            self.on('beforeAddRule.QueryBuilder', function(e, parent) {
-                let relation;
-                while (parent && !relation) {
-                    relation = parent.data ? parent.data.entity : null;
-                    parent = parent.parent;
-                }
-
-                if (relation != entity) {
-                    RCMSjQQB.getFilters(relation, jQQB);
-                }
-            });
-
-            portlet.on('change', '[data-add="relation"]', (e) => {
-                let relationSelect = $(e.currentTarget);
-                let value = relationSelect.val();
-                let option = $('option:selected', relationSelect);
-
-                if (value !== '') {
-                    RCMSjQQB.getFilters(value, jQQB);
-
-                    let root = jQQB.queryBuilder('getModel', relationSelect.closest('.rules-group-container'));
-                    let group = jQQB.queryBuilder('addGroup', root, true, {'relation': option.data('field'), 'entity': value});
-                    group.$el.find('.group-conditions').append('<button class="btn btn-xs btn-default"><i class="glyphicon"></i>' + option.text() + '</button>');
-                }
-
-                relationSelect[0].selectedIndex = 0;
-
-                console.log(RCMSjQQB.filtersCache);
-            });
-
-        }, { });
 
         jQQB.queryBuilder({
             plugins: ['bt-relation', 'bt-tooltip-errors'],
-            filters: RCMSjQQB.getFilters(entity, jQQB, jQQB.data('filters')),
+            filters: [{id: 'id'}],
             allow_empty: true,
             rules: defaultRules
         });
@@ -183,7 +249,13 @@ class RabbitCMSQueryBuilder {
                             data.append('entity', entity);
                             data.append('data', JSON.stringify(result, null, 2));
 
-                            RabbitCMS._ajax({url: form.attr('action'), method: 'POST', processData: false, contentType: false, data: data}, function (data) {
+                            RabbitCMS._ajax({
+                                url: form.attr('action'),
+                                method: 'POST',
+                                processData: false,
+                                contentType: false,
+                                data: data
+                            }, function (data) {
                                 modal.modal('hide');
 
                                 setTimeout(function () {
@@ -197,51 +269,6 @@ class RabbitCMSQueryBuilder {
                 });
             });
         });
-    }
-
-    getFilters(relation, jQQB, data?) {
-        if (this.filtersCache.hasOwnProperty(relation)) {
-            return this.filtersCache[relation];
-        }
-        let update = (filters) => {
-            this.filtersCache[relation] = filters.map(function (filter) {
-                if (filter.data && filter.data.type === 'autocomplete') {
-                    filter.valueSetter = function (rule, value) {
-                        let select = rule.$el.find('.rule-value-container select');
-                        select.empty();
-                        value.forEach((item) => {
-                            if (item) {
-                                select.append(
-                                    $('<option/>').val(item)
-                                        .text(rule.data.values[item] || item)
-                                        .prop('selected', true)
-                                );
-                            }
-                        });
-                    }
-                }
-
-                return filter;
-            });
-
-            return this.filtersCache[relation];
-        };
-
-        if (data) {
-            return update(data);
-        }
-
-        RabbitCMS._ajax(
-            {
-                method: 'GET',
-                url: RabbitCMS.getPrefix() + '/query/queries/filters/' + relation,
-                async: false
-            }, function (data) {
-                data = update(data);
-
-                jQQB.queryBuilder("addFilter", data);
-            }
-        );
     }
 
     updateRules(e, rule) {
@@ -333,45 +360,6 @@ class RabbitCMSQueryBuilder {
                     return;
             }
         });
-    }
-
-    getGroupTemplate() {
-        return '\
-<dl id="{{= it.group_id }}" class="rules-group-container"> \
-  <dt class="rules-group-header"> \
-    <div class="btn-group pull-right group-actions"> \
-      <select data-add="relation"> \
-        <option value="">Зв\'язок</option> \
-      </select> \
-      <button type="button" class="btn btn-xs btn-success" data-add="rule"> \
-        <i class="{{= it.icons.add_rule }}"></i> {{= it.translate("add_rule") }} \
-      </button> \
-      {{? it.settings.allow_groups===-1 || it.settings.allow_groups>=it.level }} \
-        <button type="button" class="btn btn-xs btn-success" data-add="group"> \
-          <i class="{{= it.icons.add_group }}"></i> {{= it.translate("add_group") }} \
-        </button> \
-      {{?}} \
-      {{? it.level>1 }} \
-        <button type="button" class="btn btn-xs btn-danger" data-delete="group"> \
-          <i class="{{= it.icons.remove_group }}"></i> {{= it.translate("delete_group") }} \
-        </button> \
-      {{?}} \
-    </div> \
-    <div class="btn-group group-conditions"> \
-      {{~ it.conditions: condition }} \
-        <label class="btn btn-xs btn-primary"> \
-          <input type="radio" name="{{= it.group_id }}_cond" value="{{= condition }}"> {{= it.translate("conditions", condition) }} \
-        </label> \
-      {{~}} \
-    </div> \
-    {{? it.settings.display_errors }} \
-      <div class="error-container"><i class="{{= it.icons.error }}"></i></div> \
-    {{?}} \
-  </dt> \
-  <dd class=rules-group-body> \
-    <ul class=rules-list></ul> \
-  </dd> \
-</dl>';
     }
 }
 
