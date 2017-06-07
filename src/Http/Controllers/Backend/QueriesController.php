@@ -12,15 +12,20 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 use Illuminate\View\View;
+use RabbitCMS\Backend\Annotation\Permissions;
 use RabbitCMS\Query\Entities;
 
 /**
  * Class QueriesController
+ *
+ * @Permissions("queries.queries.read")
  */
 class QueriesController extends Controller
 {
     /**
      * @return View
+     *
+     * @Permissions("queries.queries.write")
      */
     public function getSave(): View
     {
@@ -32,8 +37,12 @@ class QueriesController extends Controller
      *
      * @throws ModelNotFoundException
      * @throws MassAssignmentException
+     *
+     * @return JsonResponse
+     *
+     * @Permissions("queries.queries.write")
      */
-    public function postSave(Request $request)
+    public function postSave(Request $request): JsonResponse
     {
         $query = $request->has('id') ? Entities\Query::query()
             ->findOrFail($request->input('id')) : new Entities\Query();
@@ -42,6 +51,8 @@ class QueriesController extends Controller
         $data['data'] = json_decode($request->input('data', '{}'));
         $query->fill($data)
             ->save();
+
+        return Response::json($query->toArray(), 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
     }
 
     /**
@@ -83,5 +94,21 @@ class QueriesController extends Controller
         } catch (\RuntimeException $exception) {
             return [];
         }
+    }
+
+    /**
+     * @param $id
+     *
+     * @return JsonResponse
+     *
+     * @throws ModelNotFoundException
+     */
+    public function getRules($id): JsonResponse
+    {
+        /* @var Entities\Query $query */
+        $query = Entities\Query::query()
+            ->findOrFail($id);
+
+        return Response::json($query->data, 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
     }
 }

@@ -185,16 +185,37 @@ class RabbitCMSQueryBuilder {
             }
         });
 
+        let qList = $('[name="queries-list"]', portlet);
+        let qCache = {};
+        qList.select2({width: '100%'})
+            .on('change', qList, function () {
+                let rules = defaultRules;
+                let query_id = $('option:selected', this).val();
+                if (query_id !== '') {
+                    if (qCache.hasOwnProperty(query_id)) {
+                        rules = qCache[query_id];
+                    } else {
+                        RabbitCMS._ajax({
+                            method: 'GET',
+                            url: RabbitCMS.getPrefix() + '/query/queries/rules/' + query_id,
+                            async: false
+                        }, (data) => {
+                            qCache[query_id] = data;
+                            rules = data;
+                        });
+                    }
+                }
+
+                jQQB.queryBuilder('clear');
+                jQQB.queryBuilder('setRules', rules);
+            });
+
         table.on('beforeResetFilter', function (e) {
             jQQB.queryBuilder("clear");
-            jQQB.queryBuilder('setRoot', false, defaultRules);
-        });
+            jQQB.queryBuilder('setRules', defaultRules);
 
-        portlet.on('change', '[name="queries-list"]', function () {
-            jQQB.queryBuilder('clear');
-            jQQB.queryBuilder('setRules', $('option:selected', this).data('rules') || defaultRules);
+            qList.val('').trigger('change');
         });
-
 
         jQQB.queryBuilder({
             plugins: ['bt-relation', 'bt-tooltip-errors'],
@@ -257,6 +278,15 @@ class RabbitCMSQueryBuilder {
                                 data: data
                             }, function (data) {
                                 modal.modal('hide');
+
+                                qCache[data.id] = data.data;
+                                if (!qCache.hasOwnProperty(data.id)) {
+                                    querySelect.append(
+                                        $('<option/>').val(data.id)
+                                            .text(data.name)
+                                            .prop('selected', true)
+                                    ).trigger('change');
+                                }
 
                                 setTimeout(function () {
                                     modal.remove();

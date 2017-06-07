@@ -11,4 +11,6 @@ $router->group(['prefix' => 'queries'], function (Router $router) {
 
     $router->get('filters/{entity}', ['as' => 'queries.filters', 'uses' => 'QueriesController@getFilters']);
     $router->get('values', ['as' => 'queries.values', 'uses' => 'QueriesController@getValues']);
+
+    $router->get('rules/{id}', ['as' => 'queries.rules', 'uses' => 'QueriesController@getRules']);
 });
