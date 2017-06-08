@@ -170,6 +170,8 @@ class RabbitCMSQueryBuilder {
     constructor(entity, portlet) {
         let table = portlet.find('.table');
         let jQQB = $(".search-container", portlet);
+        if (jQQB.length === 0)
+            return;
         const defaultRules = {
             condition: 'AND',
             rules: [],

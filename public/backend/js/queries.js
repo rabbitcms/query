@@ -104,6 +104,8 @@ define(["require", "exports", "jquery", "query-builder"], function (require, exp
         function RabbitCMSQueryBuilder(entity, portlet) {
             var table = portlet.find('.table');
             var jQQB = $(".search-container", portlet);
+            if (jQQB.length === 0)
+                return;
             var defaultRules = {
                 condition: 'AND',
                 rules: [],
