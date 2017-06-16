@@ -364,15 +364,6 @@ class RabbitCMSQueryBuilder {
 
             }
 
-            if (rule.filter.data && rule.filter.data.type === 'amount') {
-                input.maskMoney($.extend({
-                    thousands: ' ',
-                    decimal: '.',
-                    affixesStay: false,
-                    allowZero: true
-                }, rule.filter.data.options));
-            }
-
             switch (filter_type) {
                 case 'datetime':
                     input.datetimepicker($.extend({
@@ -390,6 +381,13 @@ class RabbitCMSQueryBuilder {
                         todayHighlight: true
                     }, rule.filter.data.options));
                     return;
+            }
+
+            if (rule.filter.data && rule.filter.data.type === 'amount') {
+                input.maskMoney($.extend({
+                    affixesStay: false,
+                    allowZero: true
+                }, rule.filter.data.options));
             }
         });
     }

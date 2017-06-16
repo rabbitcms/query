@@ -279,14 +279,6 @@ define(["require", "exports", "jquery", "query-builder"], function (require, exp
                         input.select2();
                     }
                 }
-                if (rule.filter.data && rule.filter.data.type === 'amount') {
-                    input.maskMoney($.extend({
-                        thousands: ' ',
-                        decimal: '.',
-                        affixesStay: false,
-                        allowZero: true
-                    }, rule.filter.data.options));
-                }
                 switch (filter_type) {
                     case 'datetime':
                         input.datetimepicker($.extend({
@@ -304,6 +296,12 @@ define(["require", "exports", "jquery", "query-builder"], function (require, exp
                             todayHighlight: true
                         }, rule.filter.data.options));
                         return;
+                }
+                if (rule.filter.data && rule.filter.data.type === 'amount') {
+                    input.maskMoney($.extend({
+                        affixesStay: false,
+                        allowZero: true
+                    }, rule.filter.data.options));
                 }
             });
         };
