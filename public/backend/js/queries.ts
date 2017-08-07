@@ -3,6 +3,11 @@ import "query-builder";
 
 var queryBuilder = $.fn.queryBuilder;
 
+document.styleSheets[0].insertRule(`.hide-not [data-not="group"] {
+   display:none;
+}`, 0);
+
+
 queryBuilder.defaults({
     templates: {
         group: `
@@ -73,6 +78,8 @@ queryBuilder.defaults({
                 group.$el.find('.group-conditions').append(
                     `<button class="btn btn-xs btn-default"><i class="glyphicon"></i>${filter.label || group.data.relation}</button>`
                 );
+            } else {
+                group.$el.find('.group-conditions').addClass('hide-not');
             }
 
             //$('[data-add="relation"] option[value!=""]', group.$el).remove();
@@ -220,7 +227,7 @@ class RabbitCMSQueryBuilder {
         });
 
         jQQB.queryBuilder({
-            plugins: ['bt-relation', 'bt-tooltip-errors'],
+            plugins: ['bt-relation', 'bt-tooltip-errors', 'not-group'],
             filters: [{id: 'id'}],
             allow_empty: true,
             rules: defaultRules

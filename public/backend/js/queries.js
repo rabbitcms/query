@@ -1,6 +1,7 @@
 define(["require", "exports", "jquery", "query-builder"], function (require, exports, $) {
     "use strict";
     var queryBuilder = $.fn.queryBuilder;
+    document.styleSheets[0].insertRule(".hide-not [data-not=\"group\"] {\n   display:none;\n}", 0);
     queryBuilder.defaults({
         templates: {
             group: "\n<dl id=\"{{= it.group_id }}\" class=\"rules-group-container\">\n  <dt class=\"rules-group-header\">\n    <div class=\"btn-group pull-right group-actions\">\n      <select data-add=\"relation\">\n        <option value=\"\">\u0417\u0432'\u044F\u0437\u043E\u043A</option>\n      </select>\n      <button type=\"button\" class=\"btn btn-xs btn-success\" data-add=\"rule\">\n        <i class=\"{{= it.icons.add_rule }}\"></i> {{= it.translate(\"add_rule\") }}\n      </button>\n      {{? it.settings.allow_groups===-1 || it.settings.allow_groups>=it.level }}\n        <button type=\"button\" class=\"btn btn-xs btn-success\" data-add=\"group\">           <i class=\"{{= it.icons.add_group }}\"></i> {{= it.translate(\"add_group\") }}\n        </button>\n      {{?}}\n      {{? it.level>1 }}\n        <button type=\"button\" class=\"btn btn-xs btn-danger\" data-delete=\"group\">\n          <i class=\"{{= it.icons.remove_group }}\"></i> {{= it.translate(\"delete_group\") }}\n        </button>\n      {{?}}\n    </div>\n    <div class=\"btn-group group-conditions\">\n      {{~ it.conditions: condition }}\n        <label class=\"btn btn-xs btn-primary\">\n          <input type=\"radio\" name=\"{{= it.group_id }}_cond\" value=\"{{= condition }}\"> {{= it.translate(\"conditions\", condition) }}\n        </label>\n      {{~}}\n    </div>\n    {{? it.settings.display_errors }}\n      <div class=\"error-container\"><i class=\"{{= it.icons.error }}\"></i></div>\n    {{?}}\n  </dt>\n  <dd class=rules-group-body>\n    <ul class=rules-list></ul>\n  </dd>\n</dl>"
@@ -30,6 +31,9 @@ define(["require", "exports", "jquery", "query-builder"], function (require, exp
                 if (group.data && group.data.relation) {
                     var filter = _this.getFilterById(getEntity(group.parent) + "." + group.data.relation);
                     group.$el.find('.group-conditions').append("<button class=\"btn btn-xs btn-default\"><i class=\"glyphicon\"></i>" + (filter.label || group.data.relation) + "</button>");
+                }
+                else {
+                    group.$el.find('.group-conditions').addClass('hide-not');
                 }
                 //$('[data-add="relation"] option[value!=""]', group.$el).remove();
                 e.builder.filters
@@ -149,7 +153,7 @@ define(["require", "exports", "jquery", "query-builder"], function (require, exp
                 qList.val('').trigger('change');
             });
             jQQB.queryBuilder({
-                plugins: ['bt-relation', 'bt-tooltip-errors'],
+                plugins: ['bt-relation', 'bt-tooltip-errors', 'not-group'],
                 filters: [{ id: 'id' }],
                 allow_empty: true,
                 rules: defaultRules
