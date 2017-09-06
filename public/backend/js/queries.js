@@ -1,7 +1,9 @@
 define(["require", "exports", "jquery", "query-builder"], function (require, exports, $) {
     "use strict";
     var queryBuilder = $.fn.queryBuilder;
-    document.styleSheets[0].insertRule(".hide-not [data-not=\"group\"] {\n   display:none;\n}", 0);
+    var style = document.createElement("style");
+    style.innerHTML = ".hide-not [data-not=\"group\"] {\n   display:none;\n}";
+    document.head.appendChild(style);
     queryBuilder.defaults({
         templates: {
             group: "\n<dl id=\"{{= it.group_id }}\" class=\"rules-group-container\">\n  <dt class=\"rules-group-header\">\n    <div class=\"btn-group pull-right group-actions\">\n      <select data-add=\"relation\">\n        <option value=\"\">\u0417\u0432'\u044F\u0437\u043E\u043A</option>\n      </select>\n      <button type=\"button\" class=\"btn btn-xs btn-success\" data-add=\"rule\">\n        <i class=\"{{= it.icons.add_rule }}\"></i> {{= it.translate(\"add_rule\") }}\n      </button>\n      {{? it.settings.allow_groups===-1 || it.settings.allow_groups>=it.level }}\n        <button type=\"button\" class=\"btn btn-xs btn-success\" data-add=\"group\">           <i class=\"{{= it.icons.add_group }}\"></i> {{= it.translate(\"add_group\") }}\n        </button>\n      {{?}}\n      {{? it.level>1 }}\n        <button type=\"button\" class=\"btn btn-xs btn-danger\" data-delete=\"group\">\n          <i class=\"{{= it.icons.remove_group }}\"></i> {{= it.translate(\"delete_group\") }}\n        </button>\n      {{?}}\n    </div>\n    <div class=\"btn-group group-conditions\">\n      {{~ it.conditions: condition }}\n        <label class=\"btn btn-xs btn-primary\">\n          <input type=\"radio\" name=\"{{= it.group_id }}_cond\" value=\"{{= condition }}\"> {{= it.translate(\"conditions\", condition) }}\n        </label>\n      {{~}}\n    </div>\n    {{? it.settings.display_errors }}\n      <div class=\"error-container\"><i class=\"{{= it.icons.error }}\"></i></div>\n    {{?}}\n  </dt>\n  <dd class=rules-group-body>\n    <ul class=rules-list></ul>\n  </dd>\n</dl>"

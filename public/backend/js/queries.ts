@@ -2,11 +2,11 @@ import * as $ from "jquery";
 import "query-builder";
 
 var queryBuilder = $.fn.queryBuilder;
-
-document.styleSheets[0].insertRule(`.hide-not [data-not="group"] {
+let style:HTMLStyleElement = document.createElement("style");
+style.innerHTML = `.hide-not [data-not="group"] {
    display:none;
-}`, 0);
-
+}`;
+document.head.appendChild(style);
 
 queryBuilder.defaults({
     templates: {
