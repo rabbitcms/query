@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace RabbitCMS\Query\Entities;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * Class Query
@@ -12,6 +13,8 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Query extends Model
 {
+    use SoftDeletes;
+
     protected $table = 'queries';
 
     protected $fillable = [
