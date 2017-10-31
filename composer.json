@@ -3,7 +3,7 @@
   "description": "Backend for Rabbit CMS Query",
   "license": "MIT",
   "require": {
-    "rabbitcms/modules": "^1.2.0",
+    "rabbitcms/modules": "^2.0",
     "dkulyk/query": "^1.0"
   },
   "authors": [

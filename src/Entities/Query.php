@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * Class Query
  *
  * @package RabbitCMS\Query\Entities
+ * @property array $data
  */
 class Query extends Model
 {

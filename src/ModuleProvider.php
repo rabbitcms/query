@@ -8,30 +8,20 @@ use DKulyk\Eloquent\Query\Query;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\ServiceProvider;
 use RabbitCMS\Carrot\Support\Grid2;
-use RabbitCMS\Modules\ModuleProvider as BaseModuleProvider;
 
 /**
  * Class ModuleProvider.
  */
-class ModuleProvider extends BaseModuleProvider
+class ModuleProvider extends ServiceProvider
 {
-    /**
-     * @return string
-     */
-    public function name(): string
-    {
-        return 'query';
-    }
-
     /**
      * Perform post-registration booting of services.
      *
-     * @return void
-     *
-     * @throws \RuntimeException
+     * @param Manager $manager
      */
-    public function boot(Manager $manager)
+    public function boot(Manager $manager):void
     {
         Blade::directive('query', function ($expression) {
             return "<?php echo get_query_builder({$expression}); ?>";
