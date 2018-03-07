@@ -33,6 +33,14 @@ define(["require", "exports", "jquery", "query-builder"], function (require, exp
                 if (group.data && group.data.relation) {
                     var filter = _this.getFilterById(getEntity(group.parent) + "." + group.data.relation);
                     group.$el.find('.group-conditions').append("<button class=\"btn btn-xs btn-default\"><i class=\"glyphicon\"></i>" + (filter.label || group.data.relation) + "</button>");
+                    var i_1 = $('<input class="btn btn-xs btn-default" style="width: 35px">');
+                    i_1.val(group.data.count || 1);
+                    i_1.on('change', function () {
+                        var val = parseInt(i_1.val()) || 1;
+                        i_1.val(val);
+                        group.data.count = val;
+                    });
+                    group.$el.find('.group-conditions').append(i_1);
                 }
                 else {
                     group.$el.find('.group-conditions').addClass('hide-not');
@@ -106,7 +114,7 @@ define(["require", "exports", "jquery", "query-builder"], function (require, exp
             };
         }, {});
     })();
-    var RabbitCMSQueryBuilder = (function () {
+    var RabbitCMSQueryBuilder = /** @class */ (function () {
         function RabbitCMSQueryBuilder(entity, portlet) {
             var table = portlet.find('.table');
             var jQQB = $(".search-container", portlet);

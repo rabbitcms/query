@@ -2,7 +2,7 @@ import * as $ from "jquery";
 import "query-builder";
 
 var queryBuilder = $.fn.queryBuilder;
-let style:HTMLStyleElement = document.createElement("style");
+let style: HTMLStyleElement = document.createElement("style");
 style.innerHTML = `.hide-not [data-not="group"] {
    display:none;
 }`;
@@ -78,6 +78,14 @@ queryBuilder.defaults({
                 group.$el.find('.group-conditions').append(
                     `<button class="btn btn-xs btn-default"><i class="glyphicon"></i>${filter.label || group.data.relation}</button>`
                 );
+                let i = $('<input class="btn btn-xs btn-default" style="width: 35px">');
+                i.val(group.data.count || 1);
+                i.on('change', () => {
+                    let val = parseInt(i.val()) || 1;
+                    i.val(val);
+                    group.data.count = val;
+                });
+                group.$el.find('.group-conditions').append(i);
             } else {
                 group.$el.find('.group-conditions').addClass('hide-not');
             }
@@ -184,7 +192,8 @@ class RabbitCMSQueryBuilder {
             rules: [],
             data: {
                 entity: entity
-            }};
+            }
+        };
 
         table.on('beforeSubmitFilter', function (e) {
             let result = jQQB.queryBuilder('getRules');
