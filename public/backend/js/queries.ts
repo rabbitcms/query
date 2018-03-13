@@ -338,7 +338,10 @@ class RabbitCMSQueryBuilder {
 
                 if (rule.filter.data && rule.filter.data.type === 'autocomplete') {
                     input.attr('style', 'width: 250px;');
-
+                    let parent = rule.parent;
+                    while (parent && !parent.data) {
+                        parent = parent.parent;
+                    }
                     input.select2({
                         lang: 'ua',
                         placeholder: 'Пошук',

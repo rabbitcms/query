@@ -253,6 +253,10 @@ define(["require", "exports", "jquery", "query-builder"], function (require, exp
                     }
                     if (rule.filter.data && rule.filter.data.type === 'autocomplete') {
                         input.attr('style', 'width: 250px;');
+                        var parent_1 = rule.parent;
+                        while (parent_1 && !parent_1.data) {
+                            parent_1 = parent_1.parent;
+                        }
                         input.select2({
                             lang: 'ua',
                             placeholder: 'Пошук',
