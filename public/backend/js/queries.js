@@ -272,7 +272,7 @@ define(["require", "exports", "jquery", "query-builder"], function (require, exp
                                     return {
                                         term: params.term,
                                         field: rule.filter.field,
-                                        entity: rule.parent.data.entity
+                                        entity: parent_1.data.entity
                                     };
                                 },
                                 processResults: function (data, params) {

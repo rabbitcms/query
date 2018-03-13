@@ -357,7 +357,7 @@ class RabbitCMSQueryBuilder {
                                 return {
                                     term: params.term,
                                     field: rule.filter.field,
-                                    entity: rule.parent.data.entity
+                                    entity: parent.data.entity
                                 };
                             },
                             processResults: function (data, params) {
