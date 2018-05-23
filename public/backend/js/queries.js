@@ -104,7 +104,7 @@ define(["require", "exports", "jquery", "query-builder"], function (require, exp
                 else {
                     RabbitCMS._ajax({
                         method: 'GET',
-                        url: RabbitCMS.getPrefix() + '/query/queries/filters/' + entity,
+                        url: 'query/queries/filters/' + entity,
                         async: false
                     }, function (data) {
                         globalCache[entity] = data;

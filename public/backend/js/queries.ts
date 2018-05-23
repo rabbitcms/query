@@ -163,7 +163,7 @@ queryBuilder.defaults({
             } else {
                 RabbitCMS._ajax({
                     method: 'GET',
-                    url: RabbitCMS.getPrefix() + '/query/queries/filters/' + entity,
+                    url: 'query/queries/filters/' + entity,
                     async: false
                 }, (data) => {
                     globalCache[entity] = data;
