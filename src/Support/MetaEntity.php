@@ -59,6 +59,7 @@ class MetaEntity extends Entity
                             }
                             return $r;
                         }, []));
+                        break;
                     } elseif (!is_string($data['enum'])) {
                         continue 2;
                     }
@@ -76,6 +77,7 @@ class MetaEntity extends Entity
                                 return compact('id', 'text');
                             }, $result, array_keys($result));
                         });
+                        break;
                     } elseif (is_subclass_of($data['enum'], Enum::class, true)) {
                         /** @var Enum $class */
                         $class = $data['enum'];
