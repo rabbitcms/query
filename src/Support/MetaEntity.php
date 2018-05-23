@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace RabbitCMS\Query\Support;
 
+use B2B\Enum\Enum;
 use DKulyk\Eloquent\Query\Contracts\QueryManager;
 use DKulyk\Eloquent\Query\Entity;
 use DKulyk\Eloquent\Query\Field;
@@ -57,6 +58,32 @@ class MetaEntity extends Entity
                                 $r[$a] = $a;
                             }
                             return $r;
+                        }, []));
+                    } elseif (!is_string($data['enum'])) {
+                        continue 2;
+                    }
+                    if (strpos($data['enum'], '@', 1) !== false) {
+                        $type = new Types\AutoComplete(function (string $term) use ($data) {
+                            $result = app()->call($data['enum'], ['term' => $term]);
+                            if (empty($result) || !is_array($result)) {
+                                return [];
+                            }
+                            if (is_array(reset($result))) {
+                                return $result;
+                            }
+
+                            return array_map(function ($text, $id) {
+                                return compact('id', 'text');
+                            }, $result, array_keys($result));
+                        });
+                    } elseif (is_subclass_of($data['enum'], Enum::class, true)) {
+                        /** @var Enum $class */
+                        $class = $data['enum'];
+                        $type = new Types\Enum(array_reduce($class::values(), function (array $values, Enum $type) {
+                            $values[$type->getValue()] = method_exists($type, 'getCaption')
+                                ? $type->getCaption()
+                                : $type->getKey();
+                            return $values;
                         }, []));
                     }
                     break;
