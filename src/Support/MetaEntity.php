@@ -107,7 +107,7 @@ class MetaEntity extends Entity
                     $type = new Types\Amount(
                         (int)($data['precision'] ?? 2),
                         (int)($data['multiplier'] ?? 1),
-                        (int)($data['options'] ?? [])
+                        (array)($data['options'] ?? [])
                     );
                     break;
 
