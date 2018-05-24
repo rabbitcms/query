@@ -9,7 +9,9 @@ use DKulyk\Eloquent\Query\Entity;
 use DKulyk\Eloquent\Query\Field;
 use DKulyk\Eloquent\Query\Manager;
 use DKulyk\Eloquent\Query\Types;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Request;
 
 /**
  * Class MetaEntity
@@ -54,14 +56,7 @@ class MetaEntity extends Entity
                 case 'enum':
                     $enum = $data['enum'] ?? [];
                     if (is_array($enum)) {
-                        $type = new Types\Enum(array_reduce($enum, function (array $r, $a) {
-                            if (is_array($a)) {
-                                $r[$a['value']] = $a['caption'] ?? $a['value'];
-                            } else {
-                                $r[$a] = $a;
-                            }
-                            return $r;
-                        }, []));
+                        $type = new Types\Enum($enum);
                         break;
                     } elseif (!is_string($data['enum'])) {
                         continue 2;
@@ -90,6 +85,15 @@ class MetaEntity extends Entity
                                 : $type->getKey();
                             return $values;
                         }, []));
+                    } elseif(is_subclass_of($data['enum'], Model::class, true)) {
+                        /** @var Model $class */
+                        $class = $data['enum'];
+                        $type = new Types\Enum($class::all()->reduce(function (array $values, Model $model) {
+                            $values[$model->getKey()] = method_exists($model, 'getCaption')
+                                ? $model->getCaption()
+                                : $model->getKey();
+                            return $values;
+                        }, []));
                     }
                     break;
                 case 'date':
@@ -97,6 +101,13 @@ class MetaEntity extends Entity
                         $data['format'] ?? 'd.m.Y',
                         $data['printFormat'] ?? 'dd.mm.yyyy',
                         $data['options'] ?? []
+                    );
+                    break;
+                case 'amount':
+                    $type = new Types\Amount(
+                        (int)($data['precision'] ?? 2),
+                        (int)($data['multiplier'] ?? 1),
+                        (int)($data['options'] ?? [])
                     );
                     break;
 

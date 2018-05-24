@@ -102,9 +102,10 @@ define(["require", "exports", "jquery", "query-builder"], function (require, exp
                     _this.addFilter(update(globalCache[entity]));
                 }
                 else {
+                    var prefix = RabbitCMS.getPrefix();
                     RabbitCMS._ajax({
                         method: 'GET',
-                        url: 'query/queries/filters/' + entity,
+                        url: (prefix.length ? "/" + prefix : '') + "/query/queries/filters/" + entity,
                         async: false
                     }, function (data) {
                         globalCache[entity] = data;

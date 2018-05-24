@@ -161,9 +161,10 @@ queryBuilder.defaults({
             if (globalCache.hasOwnProperty(entity)) {
                 this.addFilter(update(globalCache[entity]));
             } else {
+                let prefix = RabbitCMS.getPrefix();
                 RabbitCMS._ajax({
                     method: 'GET',
-                    url: 'query/queries/filters/' + entity,
+                    url: `${prefix.length ? `/${prefix}` : ''}/query/queries/filters/${entity}`,
                     async: false
                 }, (data) => {
                     globalCache[entity] = data;
@@ -213,6 +214,7 @@ class RabbitCMSQueryBuilder {
                     if (qCache.hasOwnProperty(query_id)) {
                         rules = qCache[query_id];
                     } else {
+
                         RabbitCMS._ajax({
                             method: 'GET',
                             url: RabbitCMS.getPrefix() + '/query/queries/rules/' + query_id,
