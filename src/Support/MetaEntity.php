@@ -9,6 +9,7 @@ use DKulyk\Eloquent\Query\Entity;
 use DKulyk\Eloquent\Query\Field;
 use DKulyk\Eloquent\Query\Manager;
 use DKulyk\Eloquent\Query\Types;
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class MetaEntity
@@ -29,7 +30,9 @@ class MetaEntity extends Entity
     public function __construct(array $data)
     {
         $class = $data['class'];
-        parent::__construct(new $class(), $data['table']);
+        /** @var Model $model */
+        $model = new $class();
+        parent::__construct($model, $data['table'] ?? $model->getTable());
         $this->data = $data;
     }
 
