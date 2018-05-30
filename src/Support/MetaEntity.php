@@ -9,12 +9,11 @@ use DKulyk\Eloquent\Query\Entity;
 use DKulyk\Eloquent\Query\Field;
 use DKulyk\Eloquent\Query\Manager;
 use DKulyk\Eloquent\Query\Types;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Request;
 
 /**
  * Class MetaEntity
+ *
  * @package RabbitCMS\Query\Support
  */
 class MetaEntity extends Entity
@@ -25,6 +24,11 @@ class MetaEntity extends Entity
     private $data;
 
     /**
+     * @var Model
+     */
+    private $model;
+
+    /**
      * MetaEntity constructor.
      *
      * @param array $data
@@ -32,9 +36,9 @@ class MetaEntity extends Entity
     public function __construct(array $data)
     {
         $class = $data['class'];
-        /** @var Model $model */
-        $model = new $class();
-        parent::__construct($model, $data['table'] ?? $model->getTable());
+        $this->model = new $class();
+
+        parent::__construct($this->model, $data['table'] ?? $this->model->getTable());
         $this->data = $data;
     }
 
@@ -52,6 +56,11 @@ class MetaEntity extends Entity
                     } catch (\RuntimeException $e) {
                         continue 2;
                     }
+                    break;
+                case 'distinct':
+                    $type = new Types\Enum(
+                        $this->model->newQuery()->distinct()->pluck($data['name'], $data['name'])->all()
+                    );
                     break;
                 case 'enum':
                     $enum = $data['enum'] ?? [];
@@ -85,7 +94,7 @@ class MetaEntity extends Entity
                                 : $type->getKey();
                             return $values;
                         }, []));
-                    } elseif(is_subclass_of($data['enum'], Model::class, true)) {
+                    } elseif (is_subclass_of($data['enum'], Model::class, true)) {
                         /** @var Model $class */
                         $class = $data['enum'];
                         $type = new Types\Enum($class::all()->reduce(function (array $values, Model $model) {
