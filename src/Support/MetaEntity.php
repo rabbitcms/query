@@ -24,11 +24,6 @@ class MetaEntity extends Entity
     private $data;
 
     /**
-     * @var Model
-     */
-    private $model;
-
-    /**
      * MetaEntity constructor.
      *
      * @param array $data
@@ -36,9 +31,8 @@ class MetaEntity extends Entity
     public function __construct(array $data)
     {
         $class = $data['class'];
-        $this->model = new $class();
-
-        parent::__construct($this->model, $data['table'] ?? $this->model->getTable());
+        $model = new $class();
+        parent::__construct($model, $data['table'] ?? $model->getTable());
         $this->data = $data;
     }
 
@@ -119,7 +113,6 @@ class MetaEntity extends Entity
                         (array)($data['options'] ?? [])
                     );
                     break;
-
             }
             $this->addFields(new Field($data['name'], $data['caption'] ?? $data['name'], $type,
                 $data['filters'] ?? []));
