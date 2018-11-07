@@ -262,6 +262,7 @@ define(["require", "exports", "jquery", "query-builder"], function (require, exp
                             lang: 'ua',
                             placeholder: 'Пошук',
                             minimumInputLength: 3,
+                            width: '100%',
                             id: function (bond) {
                                 return bond.id;
                             },
@@ -295,7 +296,7 @@ define(["require", "exports", "jquery", "query-builder"], function (require, exp
                         });
                     }
                     else {
-                        input.select2();
+                        input.select2({ width: '100%' });
                     }
                 }
                 switch (filter_type) {

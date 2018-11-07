@@ -91,10 +91,14 @@ class MetaEntity extends Entity
                     } elseif (is_subclass_of($data['enum'], Model::class, true)) {
                         /** @var Model $class */
                         $class = $data['enum'];
-                        $type = new Types\Enum($class::all()->reduce(function (array $values, Model $model) {
+                        $type = new Types\Enum($class::all()->reduce(function (array $values, Model $model) use ($data
+                        ) {
                             $values[$model->getKey()] = method_exists($model, 'getCaption')
                                 ? $model->getCaption()
-                                : $model->getKey();
+                                : (array_key_exists('title', $data)
+                                    ? $model->getAttribute($data['title'])
+                                    : $model->getKey()
+                                );
                             return $values;
                         }, []));
                     }
