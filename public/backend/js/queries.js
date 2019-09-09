@@ -31,6 +31,7 @@ define(["require", "exports", "jquery", "query-builder"], function (require, exp
                 var entity = getEntity(group);
                 getFilters(entity);
                 if (group.data && group.data.relation) {
+                    group.flags.allow_empty = true;
                     var filter = _this.getFilterById(getEntity(group.parent) + "." + group.data.relation);
                     group.$el.find('.group-conditions').append("<button class=\"btn btn-xs btn-default\"><i class=\"glyphicon\"></i>" + (filter.label || group.data.relation) + "</button>");
                     var i_1 = $('<input class="btn btn-xs btn-default" style="width: 35px">');
@@ -62,8 +63,6 @@ define(["require", "exports", "jquery", "query-builder"], function (require, exp
                         var group_1 = _this.addGroup(root, false, {
                             'relation': option.data('field'),
                             'entity': value
-                        }, {
-                            allow_empty: true
                         });
                     }
                     relationSelect[0].selectedIndex = 0;

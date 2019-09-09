@@ -74,6 +74,7 @@ queryBuilder.defaults({
             let entity = getEntity(group);
             getFilters(entity);
             if (group.data && group.data.relation) {
+                group.flags.allow_empty = true
                 let filter = this.getFilterById(`${getEntity(group.parent)}.${group.data.relation}`);
                 group.$el.find('.group-conditions').append(
                     `<button class="btn btn-xs btn-default"><i class="glyphicon"></i>${filter.label || group.data.relation}</button>`
@@ -112,10 +113,7 @@ queryBuilder.defaults({
                     let group = this.addGroup(root, false, {
                         'relation': option.data('field'),
                         'entity': value
-                    }, {
-                        allow_empty: true
                     });
-
                 }
 
                 relationSelect[0].selectedIndex = 0;
