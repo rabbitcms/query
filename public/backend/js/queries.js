@@ -59,9 +59,11 @@ define(["require", "exports", "jquery", "query-builder"], function (require, exp
                     if (value !== '') {
                         getFilters(value);
                         var root = _this.getModel(relationSelect.closest('.rules-group-container'));
-                        var group_1 = _this.addGroup(root, true, {
+                        var group_1 = _this.addGroup(root, false, {
                             'relation': option.data('field'),
                             'entity': value
+                        }, {
+                            allow_empty: true
                         });
                     }
                     relationSelect[0].selectedIndex = 0;

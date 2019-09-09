@@ -109,9 +109,11 @@ queryBuilder.defaults({
                     getFilters(value);
 
                     let root = this.getModel(relationSelect.closest('.rules-group-container'));
-                    let group = this.addGroup(root, true, {
+                    let group = this.addGroup(root, false, {
                         'relation': option.data('field'),
                         'entity': value
+                    }, {
+                        allow_empty: true
                     });
 
                 }
@@ -348,7 +350,7 @@ class RabbitCMSQueryBuilder {
                         lang: 'ua',
                         placeholder: 'Пошук',
                         minimumInputLength: 3,
-                        width:'100%',
+                        width: '100%',
                         id: function (bond) {
                             return bond.id;
                         },
@@ -381,7 +383,7 @@ class RabbitCMSQueryBuilder {
                         }
                     });
                 } else {
-                    input.select2({width:'100%'});
+                    input.select2({width: '100%'});
                 }
 
             }

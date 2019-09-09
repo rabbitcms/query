@@ -405,7 +405,8 @@ QueryBuilder.DEFAULTS = {
         condition_readonly: false,
         no_add_rule: false,
         no_add_group: false,
-        no_delete: false
+        no_delete: false,
+        allow_empty: false
     },
 
     templates: {
@@ -1624,7 +1625,7 @@ QueryBuilder.prototype.validate = function(options) {
         else if (done === 0 && !group.isRoot() && options.skip_empty) {
             return null;
         }
-        else if (done === 0 && (!self.settings.allow_empty || !group.isRoot())) {
+        else if (done === 0 && !group.flags.allow_empty && (!self.settings.allow_empty || !group.isRoot())) {
             self.triggerValidationError(group, 'empty_group', null);
             return false;
         }
