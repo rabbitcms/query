@@ -1625,7 +1625,7 @@ QueryBuilder.prototype.validate = function(options) {
         else if (done === 0 && !group.isRoot() && options.skip_empty) {
             return null;
         }
-        else if ((done === 0 && !self.settings.allow_empty) || (!group.flags.allow_empty && !group.isRoot())) {
+        else if (done === 0 && !group.flags.allow_empty && (!self.settings.allow_empty || !group.isRoot())) {
             self.triggerValidationError(group, 'empty_group', null);
             return false;
         }
