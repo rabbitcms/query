@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace RabbitCMS\Query;
@@ -13,6 +14,7 @@ use RabbitCMS\Carrot\Support\Grid2;
 use RabbitCMS\Modules\Facades\Modules;
 use RabbitCMS\Modules\Module;
 use RabbitCMS\Query\Support\MetaEntity;
+use RabbitCMS\Query\View\Components\QueryComponent;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -29,13 +31,15 @@ class ModuleProvider extends ServiceProvider
             return "<?php echo get_query_builder({$expression}); ?>";
         });
 
+        Blade::component('query', QueryComponent::class);
+
         $this->app->afterResolving(QueryManager::class, function (QueryManager $manager) {
             array_map(function (Module $module) use ($manager) {
                 $path = $module->getPath('config/query.yml');
                 if (is_file($path)) {
                     $yml = Yaml::parseFile($path);
                     foreach ($yml as $table) {
-                       $manager->register(new MetaEntity($table));
+                        $manager->register(new MetaEntity($table));
                     }
                 }
             }, Modules::enabled());

@@ -326,6 +326,13 @@ define(["require", "exports", "jquery", "query-builder"], function (require, exp
                 }
             });
         };
+        /**
+         * @param {JQuery} portlet
+         * @return {RabbitCMSQueryBuilder}
+         */
+        RabbitCMSQueryBuilder.component = function (portlet) {
+            return new RabbitCMSQueryBuilder(portlet.data('entity'), portlet.closest('.table-container'));
+        };
         return RabbitCMSQueryBuilder;
     }());
     return RabbitCMSQueryBuilder;

@@ -1,6 +1,6 @@
 @can('queries.queries.read')
     <link href="{{module_asset('query', 'backend/css/query-builder.default.css')}}" rel="stylesheet" type="text/css">
-    <div class="panel-group accordion" id="search-container-{{$entity->getName()}}">
+    <div class="panel-group accordion" id="search-container-{{$entity->getName()}}" data-require="rabbitcms/queries:component" data-entity="{{$entity->getName()}}">
         <div class="panel panel-default">
             <div class="panel-heading">
                 <h4 class="panel-title">
