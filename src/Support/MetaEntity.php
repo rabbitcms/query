@@ -47,7 +47,9 @@ class MetaEntity extends Entity
             switch ($data['type'] ?? '') {
                 case 'relation':
                     try {
-                        $type = new Types\Relation($manager->get($data['relation']));
+                        $type = new Types\Relation(
+                            $manager->get($data['relation'] ?? $this->model->{$data['name']}()->getModel()->getTable())
+                        );
                     } catch (\RuntimeException $e) {
                         continue 2;
                     }
