@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace RabbitCMS\Query\Support;
@@ -26,7 +27,7 @@ class MetaEntity extends Entity
     /**
      * MetaEntity constructor.
      *
-     * @param array $data
+     * @param  array  $data
      */
     public function __construct(array $data)
     {
@@ -61,13 +62,13 @@ class MetaEntity extends Entity
                     if (is_array($enum)) {
                         $type = new Types\Enum($enum);
                         break;
-                    } elseif (!is_string($data['enum'])) {
+                    } elseif (! is_string($data['enum'])) {
                         continue 2;
                     }
                     if (strpos($data['enum'], '@', 1) !== false) {
                         $type = new Types\AutoComplete(function (string $term) use ($data) {
                             $result = app()->call($data['enum'], ['term' => $term]);
-                            if (empty($result) || !is_array($result)) {
+                            if (empty($result) || ! is_array($result)) {
                                 return [];
                             }
                             if (is_array(reset($result))) {
@@ -86,6 +87,7 @@ class MetaEntity extends Entity
                             $values[$type->getValue()] = method_exists($type, 'getCaption')
                                 ? $type->getCaption()
                                 : $type->getKey();
+
                             return $values;
                         }, []));
                     } elseif (is_subclass_of($data['enum'], Model::class, true)) {
@@ -99,6 +101,7 @@ class MetaEntity extends Entity
                                     ? $model->getAttribute($data['title'])
                                     : $model->getKey()
                                 );
+
                             return $values;
                         }, []));
                     }
@@ -112,10 +115,16 @@ class MetaEntity extends Entity
                     break;
                 case 'amount':
                     $type = new Types\Amount(
-                        (int)($data['precision'] ?? 2),
-                        (int)($data['multiplier'] ?? 1),
-                        (array)($data['options'] ?? [])
+                        (int) ($data['precision'] ?? 2),
+                        (int) ($data['multiplier'] ?? 1),
+                        (array) ($data['options'] ?? [])
                     );
+                    break;
+                default:
+                    if (is_subclass_of($data['type'] ?? '', Types\AbstractType::class)) {
+                        $class = $data['type'];
+                        $type = new $class(...(array) ($data['args'] ?? []));
+                    }
                     break;
             }
             $this->addFields(new Field($data['name'], $data['caption'] ?? $data['name'], $type,
