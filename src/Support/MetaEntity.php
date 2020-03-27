@@ -4,13 +4,10 @@ declare(strict_types=1);
 
 namespace RabbitCMS\Query\Support;
 
-use B2B\Enum\Enum;
+use DKulyk\Enum\Enum;
+use DKulyk\Eloquent\Query\{Entity, Field, Manager, Types};
 use DKulyk\Eloquent\Query\Contracts\QueryManager;
-use DKulyk\Eloquent\Query\Entity;
-use DKulyk\Eloquent\Query\Field;
-use DKulyk\Eloquent\Query\Manager;
-use DKulyk\Eloquent\Query\Types;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\{Builder, Model};
 
 /**
  * Class MetaEntity
@@ -95,17 +92,22 @@ class MetaEntity extends Entity
                     } elseif (is_subclass_of($data['enum'], Model::class, true)) {
                         /** @var Model $class */
                         $class = $data['enum'];
-                        $type = new Types\Enum($class::all()->reduce(function (array $values, Model $model) use ($data
-                        ) {
-                            $values[$model->getKey()] = method_exists($model, 'getCaption')
-                                ? $model->getCaption()
-                                : (array_key_exists('title', $data)
-                                    ? $model->getAttribute($data['title'])
-                                    : $model->getKey()
-                                );
+                        $type = new Types\Enum($class::query()
+                            ->when($data['where'] ?? null, function (Builder $builder, array $where) {
+                                $builder->where($where);
+                            })
+                            ->get()
+                            ->reduce(function (array $values, Model $model) use ($data
+                            ) {
+                                $values[$model->getKey()] = method_exists($model, 'getCaption')
+                                    ? $model->getCaption()
+                                    : (array_key_exists('title', $data)
+                                        ? $model->getAttribute($data['title'])
+                                        : $model->getKey()
+                                    );
 
-                            return $values;
-                        }, []));
+                                return $values;
+                            }, []));
                     }
                     break;
                 case 'date':
