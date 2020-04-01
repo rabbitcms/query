@@ -132,7 +132,7 @@ define(["require", "exports", "jquery", "query-builder"], function (require, exp
             table.on('beforeSubmitFilter', function (e) {
                 var result = jQQB.queryBuilder('getRules');
                 if (!$.isEmptyObject(result) && !$.isEmptyObject(result.rules)) {
-                    e.data = { filters: JSON.stringify(result, null, 2) };
+                    e.data = { filters: JSON.stringify(result) };
                 }
             });
             var qList = $('[name="queries-list"]', portlet);

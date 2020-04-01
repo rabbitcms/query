@@ -200,7 +200,7 @@ class RabbitCMSQueryBuilder {
       let result = jQQB.queryBuilder('getRules');
 
       if (!$.isEmptyObject(result) && !$.isEmptyObject(result.rules)) {
-        e.data = {filters: JSON.stringify(result, null, 2)};
+        e.data = {filters: JSON.stringify(result)};
       }
     });
 
