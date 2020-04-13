@@ -131,8 +131,13 @@ class MetaEntity extends Entity
                     }
                     break;
             }
-            $this->addFields(new Field($data['name'], $data['caption'] ?? $data['name'], $type,
-                $data['filters'] ?? []));
+            $field = new Field($data['name'], $data['caption'] ?? $data['name'], $type, $data['filters'] ?? []);
+
+            if (array_key_exists('withoutScopes', $data)) {
+                $field->withoutScopes((array) $data['withoutScopes']);
+            }
+
+            $this->addFields($field);
         }
     }
 }

@@ -4,7 +4,7 @@
   "license": "MIT",
   "require": {
     "rabbitcms/modules": "^2.0",
-    "dkulyk/query": "^1.0",
+    "dkulyk/query": "^1.1.1",
     "symfony/yaml": "~3.0|~4.0"
   },
   "authors": [
