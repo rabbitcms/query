@@ -138,7 +138,8 @@ queryBuilder.defaults({
         filtersCache[entity] = filters.map(function (filter) {
           if (filter.data && filter.data.type === 'autocomplete') {
             filter.valueSetter = function (rule, value) {
-              let select = rule.$el.find('.rule-value-container select');
+              const select = rule.$el.find('.rule-value-container select');
+              if (select.length === 0) return
               select.empty();
               value.forEach((item) => {
                 if (item) {

@@ -85,6 +85,8 @@ define(["require", "exports", "jquery", "query-builder"], function (require, exp
                         if (filter.data && filter.data.type === 'autocomplete') {
                             filter.valueSetter = function (rule, value) {
                                 var select = rule.$el.find('.rule-value-container select');
+                                if (select.length === 0)
+                                    return;
                                 select.empty();
                                 value.forEach(function (item) {
                                     if (item) {
