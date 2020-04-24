@@ -139,17 +139,18 @@ queryBuilder.defaults({
           if (filter.data && filter.data.type === 'autocomplete') {
             filter.valueSetter = function (rule, value) {
               const select = rule.$el.find('.rule-value-container select');
-              if (select.length === 0) return
               select.empty();
-              value.forEach((item) => {
-                if (item) {
-                  select.append(
-                    $('<option/>').val(item)
-                      .text(rule.data.values[item] || item)
-                      .prop('selected', true)
-                  );
-                }
-              });
+              if (value) {
+                value.forEach((item) => {
+                  if (item) {
+                    select.append(
+                      $('<option/>').val(item)
+                        .text(rule.data.values[item] || item)
+                        .prop('selected', true)
+                    );
+                  }
+                });
+              }
             }
           }
 
