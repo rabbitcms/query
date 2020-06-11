@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace RabbitCMS\Query\Entities;
 
+use DKulyk\Eloquent\Extensions\Concerns\HasUUIDKey;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -15,6 +16,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Query extends Model
 {
     use SoftDeletes;
+    use HasUUIDKey;
 
     protected $table = 'queries';
 

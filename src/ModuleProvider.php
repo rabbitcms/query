@@ -39,7 +39,12 @@ class ModuleProvider extends ServiceProvider
                 if (is_file($path)) {
                     $yml = Yaml::parseFile($path);
                     foreach ($yml as $table) {
-                        $manager->register(new MetaEntity($table));
+                        $meta = new MetaEntity($table);
+                        if ($manager->has($meta->getName())) {
+                            $manager->get($meta->getName())->appendData($table);
+                        } else {
+                            $manager->register($meta);
+                        }
                     }
                 }
             }, Modules::enabled());

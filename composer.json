@@ -1,29 +1,33 @@
 {
-  "name": "rabbitcms/query",
-  "description": "Backend for Rabbit CMS Query",
-  "license": "MIT",
-  "require": {
-    "rabbitcms/modules": "^2.0",
-    "dkulyk/query": "^1.1.1",
-    "symfony/yaml": "~3.0|~4.0"
-  },
-  "authors": [
-    {
-      "name": "Dmytro Zhurakovskyi",
-      "email": "dmytro.zhurakovsky@gmail.com"
-    }
-  ],
-  "autoload": {
-    "psr-4": {
-      "RabbitCMS\\Query\\": "src/"
+    "name": "rabbitcms/query",
+    "description": "Backend for Rabbit CMS Query",
+    "license": "MIT",
+    "require": {
+        "rabbitcms/modules": "^2.0",
+        "dkulyk/query": "^1.1.1",
+        "dkulyk/eloquent-extensions": "^1.5.0",
+        "symfony/yaml": "~3.0|~4.0"
     },
-    "files": [
-      "src/Support/helpers.php"
-    ]
-  },
-  "extra": {
-    "module": {
-      "providers": "RabbitCMS\\Query\\ModuleProvider"
+    "authors": [
+        {
+            "name": "Dmytro Zhurakovskyi",
+            "email": "dmytro.zhurakovsky@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "RabbitCMS\\Query\\": "src/"
+        },
+        "classmap": [
+            "database/migrations"
+        ],
+        "files": [
+            "src/Support/helpers.php"
+        ]
+    },
+    "extra": {
+        "module": {
+            "providers": "RabbitCMS\\Query\\ModuleProvider"
+        }
     }
-  }
 }

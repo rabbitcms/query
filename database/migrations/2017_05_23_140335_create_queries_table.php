@@ -19,9 +19,11 @@ class CreateQueriesTable extends Migration
     {
         Schema::create('queries', function (Blueprint $table) {
             $table->increments('id');
+            $table->uuid('uuid');
             $table->string('name');
             $table->string('entity');
             $table->text('data');
+            $table->boolean('hidden')->default(false);
             $table->timestamps();
             $table->softDeletes();
         });

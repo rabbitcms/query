@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace RabbitCMS\Query\View\Components;
 
-use DKulyk\Eloquent\Query\Contracts\QueryEntity;
-use DKulyk\Eloquent\Query\Manager;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\App;
-use Illuminate\View\Component;
+use DKulyk\Eloquent\Query\{Contracts\QueryEntity, Manager};
+use Illuminate\Database\Eloquent\{Builder, Collection};
+use Illuminate\View\{Component, View};
 use RabbitCMS\Modules\Concerns\BelongsToModule;
 use RabbitCMS\Query\Entities\Query;
 
@@ -20,13 +18,13 @@ class QueryComponent extends Component
     use BelongsToModule;
 
     /**
-     * @var \DKulyk\Eloquent\Query\Contracts\QueryEntity
+     * @var QueryEntity
      */
     public $entity;
 
     /**
      * QueryComponent constructor.
-     * @param  \DKulyk\Eloquent\Query\Manager  $manager
+     * @param  Manager  $manager
      * @param  string  $entity
      */
     public function __construct(Manager $manager, string $entity)
@@ -35,7 +33,7 @@ class QueryComponent extends Component
     }
 
     /**
-     * @return \Illuminate\Contracts\View\View|\Illuminate\View\View|string
+     * @return View|string
      */
     public function render()
     {
@@ -43,7 +41,7 @@ class QueryComponent extends Component
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection
+     * @return Builder[]|Collection
      */
     public function queries()
     {
