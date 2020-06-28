@@ -24,6 +24,7 @@ class CreateQueriesTable extends Migration
             $table->string('entity');
             $table->text('data');
             $table->boolean('hidden')->default(false);
+            $table->char('hash', 32)->index();
             $table->timestamps();
             $table->softDeletes();
         });

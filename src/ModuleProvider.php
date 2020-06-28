@@ -52,12 +52,21 @@ class ModuleProvider extends ServiceProvider
 
         Grid2::addHandler(function (Builder $query, Request $request) {
             $json = $request->input('qBuilder');
+            if (empty($json)) {
+                return;
+            }
+
+            if (preg_match('/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/', $json)) {
+                $json = \RabbitCMS\Query\Entities\Query::query()->where('uuid', $json)->first()->getRawOriginal('data');
+            }
+
             if ($json) {
                 $json = json_decode($json, true);
                 $manager = app(QueryManager::class);
                 (new Query($manager->get($json['data']['entity']), $json))
                     ->buildQuery($query);
             }
+
         });
     }
 }

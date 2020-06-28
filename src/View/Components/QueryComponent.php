@@ -46,7 +46,8 @@ class QueryComponent extends Component
     public function queries()
     {
         return Query::query()
-            ->where('entity', '=', $this->entity->getName())
+            ->where('entity', $this->entity->getName())
+            ->where('hidden', false)
             ->get();
     }
 }

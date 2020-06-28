@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace RabbitCMS\Query\Entities;
@@ -10,8 +11,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 /**
  * Class Query
  *
- * @package RabbitCMS\Query\Entities
+ * @property-read int $id
+ * @property-read string $uuid
+ * @property bool $hiddend
  * @property array $data
+ * @property string $name
+ * @property string $entity
  */
 class Query extends Model
 {
@@ -23,10 +28,18 @@ class Query extends Model
     protected $fillable = [
         'name',
         'entity',
-        'data'
+        'data',
+        'hidden',
     ];
 
     protected $casts = [
-        'data' => 'array'
+        'data' => 'array',
+        'hidden' => 'bool',
     ];
+
+    public static function boot()
+    {
+        parent::boot();
+        self::saving(fn(Query $query) => $query->setAttribute('hash', md5($query->getAttributes()['data'])));
+    }
 }

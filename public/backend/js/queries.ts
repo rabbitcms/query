@@ -1,3 +1,4 @@
+// @ts-nocheck
 import * as $ from "jquery";
 import "query-builder";
 
@@ -63,7 +64,7 @@ queryBuilder.defaults({
       if (rule.filter.data && rule.filter.data.type === 'autocomplete') {
         let values = {};
         rule.$el.find('.rule-value-container select option:selected').each(function () {
-          values[$(this).val()] = $(this).text();
+          values[<string>$(this).val()] = $(this).text();
         });
 
         e.value.data['values'] = values;
@@ -82,7 +83,7 @@ queryBuilder.defaults({
         let i = $('<input class="btn btn-xs btn-default" style="width: 35px">');
         i.val(group.data.count || 1);
         i.on('change', () => {
-          let val = parseInt(i.val()) || 1;
+          let val = parseInt(<string>i.val()) || 1;
           i.val(val);
           group.data.count = val;
         });
@@ -202,7 +203,17 @@ class RabbitCMSQueryBuilder {
       let result = jQQB.queryBuilder('getRules');
 
       if (!$.isEmptyObject(result) && !$.isEmptyObject(result.rules)) {
-        e.data = {filters: JSON.stringify(result)};
+        e.data = {
+          filters: new Promise<any>((resolve, reject) => {
+            RabbitCMS._ajax({
+              method: 'POST',
+              url: RabbitCMS.getPrefix() + '/query/query',
+              data: result
+            }).then((data) => {
+              resolve(data.uuid)
+            }, reject)
+          })
+        }
       }
     });
 
@@ -211,7 +222,7 @@ class RabbitCMSQueryBuilder {
     qList.select2({width: '100%'})
       .on('change', qList, function () {
         let rules = defaultRules;
-        let query_id = $('option:selected', this).val();
+        let query_id = <string>$('option:selected', this).val();
         if (query_id !== '') {
           if (qCache.hasOwnProperty(query_id)) {
             rules = qCache[query_id];

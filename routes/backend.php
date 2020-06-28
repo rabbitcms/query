@@ -1,9 +1,12 @@
 <?php
+
 declare(strict_types=1);
 
 use Illuminate\Routing\Router;
 
 /* @var Router $router */
+
+$router->apiResource('query', 'QueryContorller', ['only' => ['store']]);
 
 $router->group(['prefix' => 'queries'], function (Router $router) {
     $router->get('save', ['as' => 'queries.save.modal', 'uses' => 'QueriesController@getSave']);
