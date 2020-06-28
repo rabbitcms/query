@@ -181,7 +181,8 @@ define(["require", "exports", "jquery", "query-builder"], function (require, exp
                             RabbitCMS._ajax({
                                 method: 'POST',
                                 url: RabbitCMS.getPrefix() + '/query/query',
-                                data: result
+                                data: JSON.stringify(result),
+                                contentType: "application/json; charset=utf-8",
                             }).then((data) => {
                                 resolve(data.uuid);
                             }, reject);
