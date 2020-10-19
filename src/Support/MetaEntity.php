@@ -49,6 +49,16 @@ class MetaEntity extends Entity
         foreach ($this->data as $datum) {
             foreach ($datum['fields'] as $data) {
                 $type = null;
+                foreach ($data['when'] ?? [] as $rule) {
+                    switch ($rule['type']) {
+                        case 'class_exists':
+                        case 'class':
+                            if (! class_exists($rule['class'])) {
+                                continue 3;
+                            }
+                            break;
+                    }
+                }
                 switch ($data['type'] ?? '') {
                     case 'relation':
                         try {
