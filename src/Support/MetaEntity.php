@@ -135,6 +135,14 @@ class MetaEntity extends Entity
                             $data['options'] ?? []
                         );
                         break;
+
+                    case 'datetime':
+                        $type = new Types\DateTime(
+                            $data['format'] ?? 'd.m.Y H:i',
+                            $data['printFormat'] ?? 'dd.mm.yyyy hh:ii',
+                            $data['options'] ?? []
+                        );
+                        break;
                     case 'amount':
                         $type = new Types\Amount(
                             (int) ($data['precision'] ?? 2),
