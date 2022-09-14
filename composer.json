@@ -3,10 +3,10 @@
     "description": "Backend for Rabbit CMS Query",
     "license": "MIT",
     "require": {
-        "rabbitcms/modules": "^2.0",
+        "rabbitcms/modules": "^2.0 || ^3.0",
         "dkulyk/query": "^1.1.1",
         "dkulyk/eloquent-extensions": "^1.5.0",
-        "symfony/yaml": "~3.0|~4.0"
+        "symfony/yaml": "^5.0|^6.0"
     },
     "authors": [
         {
